@@ -65,7 +65,7 @@ class _ListeRapportsScreenState extends State<ListeRapportsScreen>
     });
   }
 
-  void showUpdateDialog(BuildContext context) {
+  void showUpdateDialog(BuildContext context, String newVersion) {
     showDialog(
       context: context,
       barrierDismissible: false, // prevents closing dialog by tapping outside
@@ -98,7 +98,7 @@ class _ListeRapportsScreenState extends State<ListeRapportsScreen>
                   barrierDismissible: false,
                   builder: (dialogContext) {
                     return FutureBuilder<String>(
-                      future: getApkDownloadUrl(),
+                      future: getApkDownloadUrl(newVersion),
                       builder: (context, snapshot) {
                         if (snapshot.connectionState ==
                             ConnectionState.waiting) {
@@ -111,8 +111,8 @@ class _ListeRapportsScreenState extends State<ListeRapportsScreen>
                           );
                         } else if (snapshot.hasError) {
                           return AlertDialog(
-                            title: const Text('Erreur'),
-                            content: Text('Erreur: ${snapshot.error}'),
+                            title: const Text('Erreur de téléchargement'),
+                            content: Text(snapshot.error.toString()),
                             actions: [
                               TextButton(
                                 onPressed: () {
@@ -148,7 +148,7 @@ class _ListeRapportsScreenState extends State<ListeRapportsScreen>
     if (isUpdateAvailable && !_updateDialogShown) {
       _updateDialogShown = true; // Empêche le dialog de se réafficher
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        showUpdateDialog(context);
+        showUpdateDialog(context, newVersion);
       });
     }
 

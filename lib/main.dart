@@ -49,8 +49,8 @@ Future<void> updateTestVersion() async {
   await ref.set(packageInfo.version);
 }
 
-Future<String> getApkDownloadUrl() async {
-  Reference ref = FirebaseStorage.instance.ref('app-release.apk');
+Future<String> getApkDownloadUrl(String version) async {
+  Reference ref = FirebaseStorage.instance.ref('APKs/$version/app-release.apk');
   String url = await ref.getDownloadURL();
   return url;
 }
