@@ -1,0 +1,4 @@
+enum TypeService {
+  matinee,
+  soiree,
+}
