@@ -71,6 +71,7 @@ class _EditRapportScreenState extends State<EditRapportScreen>
     'Sélection gare',
     'Vérifications',
     'Rechargement et caisse',
+    'Commentaire final'
   ];
 
   @override
@@ -738,6 +739,7 @@ class _EditRapportScreenState extends State<EditRapportScreen>
                                       if (index == 1) _garesCards(context),
                                       if (index == 2) _verificationsCard(),
                                       if (index == 3) _artColumn(context),
+                                      if (index == 4) _commentaireFinalCard(),
                                     ],
                                   ),
                                 );
@@ -809,7 +811,7 @@ class _EditRapportScreenState extends State<EditRapportScreen>
     _isSaving = true;
     bool updated = _rapport.id != null;
 
-    _rapport.id = await _dbService.saveRapport(_rapport);
+    _rapport.id = await _dbService.saveRapport(_rapport, updated);
 
     setState(() {
       _isSaving = false;
@@ -1208,5 +1210,73 @@ class _EditRapportScreenState extends State<EditRapportScreen>
     return _rapport.gareId.isEmpty || _rapport.date == null
         ? 'Nouveau rapport'
         : '${_getGareById(_rapport.gareId)} - ${DateFormat.yMMMMd("fr_FR").format(_rapport.date!)}';
+  }
+
+  Widget _commentaireFinalCard() {
+    TextEditingController commentaireController =
+        TextEditingController(text: _rapport.commentaireFinal);
+
+    return Card(
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(Radius.circular(16.0)),
+      ),
+      margin: const EdgeInsets.all(12.0),
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ListTile(
+            title: const Text('Commentaire final'),
+            subtitleTextStyle: TextStyle(
+              color: _rapport.commentaireFinal.isEmpty
+                  ? AppColors.error
+                  : Colors.white,
+            ),
+            subtitle: Text(
+              _rapport.commentaireFinal.isEmpty
+                  ? 'Vide'
+                  : _rapport.commentaireFinal,
+            ),
+            onTap: () {
+              showDialog(
+                context: context,
+                builder: (context) {
+                  return AlertDialog(
+                    title: const Text('Commentaire final'),
+                    content: TextField(
+                      controller: commentaireController,
+                      decoration: const InputDecoration(
+                        border: OutlineInputBorder(),
+                      ),
+                      maxLines: 3,
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                          commentaireController.text =
+                              _rapport.commentaireFinal;
+                        },
+                        child: const Text('Annuler'),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                          setState(() {
+                            _rapport.commentaireFinal =
+                                commentaireController.text;
+                          });
+                        },
+                        child: const Text('Valider'),
+                      ),
+                    ],
+                  );
+                },
+              );
+            },
+          ),
+        ],
+      ),
+    );
   }
 }

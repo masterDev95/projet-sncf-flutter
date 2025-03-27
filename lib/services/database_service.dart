@@ -61,7 +61,7 @@ class DatabaseService {
     }).toList();
   }
 
-  Future<String> saveRapport(Rapport rapport, {bool updated = false}) async {
+  Future<String> saveRapport(Rapport rapport, bool updated) async {
     if (updated) {
       await _db
           .collection('rapports')

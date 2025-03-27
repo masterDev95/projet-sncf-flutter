@@ -27,6 +27,8 @@ class Rapport {
   // Rechargement et caisse
   List<Art> arts;
 
+  String commentaireFinal;
+
   Rapport({
     this.id,
     this.date,
@@ -39,6 +41,7 @@ class Rapport {
     this.digisiteChecked = false,
     this.cab = Cab.ko,
     this.commentaireVerif = "",
+    this.commentaireFinal = "",
     List<Art>? arts,
   })  : agents = agents ?? [],
         gareId = gareId ?? "",
@@ -85,6 +88,7 @@ class Rapport {
             ),
           )
           .toList(),
+      commentaireFinal: data?['commentaireFinal'] ?? "",
     );
   }
 
@@ -103,6 +107,7 @@ class Rapport {
       'cab': cab.toString(),
       'commentaireVerif': commentaireVerif,
       'arts': arts.map((art) => art.toFirestore()).toList(),
+      'commentaireFinal': commentaireFinal,
     };
   }
 }
