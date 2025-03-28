@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -22,10 +23,11 @@ class ListeRapportsScreen extends StatefulWidget {
 
 class _ListeRapportsScreenState extends State<ListeRapportsScreen>
     with RouteAware {
-  List<Rapport> _listeRapports = [];
+  final DatabaseService _dbService = DatabaseService();
+  late final Stream<QuerySnapshot> _rapportsStream;
+
   List<Agent> _listeAgents = [];
   List<Gare> _listeGares = [];
-  final DatabaseService _dbService = DatabaseService();
   bool _isLoading = false;
   bool _updateDialogShown = false;
 
@@ -33,6 +35,7 @@ class _ListeRapportsScreenState extends State<ListeRapportsScreen>
   void initState() {
     super.initState();
     _fetchData();
+    _rapportsStream = _dbService.streamCollection(Collection.rapports);
   }
 
   @override
@@ -57,7 +60,6 @@ class _ListeRapportsScreenState extends State<ListeRapportsScreen>
     _isLoading = true;
     await Future.wait([
       _fetchAgents(),
-      _fetchRapports(),
       _fetchGares(),
     ]);
     setState(() {
@@ -152,23 +154,28 @@ class _ListeRapportsScreenState extends State<ListeRapportsScreen>
       });
     }
 
-    // 1️⃣ Regrouper les rapports par date
-    Map<String, List<Rapport>> groupedRapports = {};
-
-    for (var rapport in _listeRapports) {
-      String formattedDate = DateFormat.yMMMMd('fr_FR').format(rapport.date!);
-      if (!groupedRapports.containsKey(formattedDate)) {
-        groupedRapports[formattedDate] = [];
-      }
-      groupedRapports[formattedDate]!.add(rapport);
+    // Si les autres données (agents, gares) ne sont pas encore chargées, on affiche un loader
+    if (_isLoading) {
+      return Scaffold(
+        appBar: AppBar(
+          title: Row(
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(right: 20.0, left: 8.0),
+                child: Image.asset(
+                  "assets/images/logo.png",
+                  height: 36,
+                ),
+              ),
+              Text(widget.title),
+            ],
+          ),
+        ),
+        body: const Center(child: CircularProgressIndicator()),
+      );
     }
 
-    // 2️⃣ Trier les dates en ordre décroissant
-    List<String> sortedDates = groupedRapports.keys.toList()
-      ..sort((a, b) => DateFormat.yMMMMd('fr_FR')
-          .parse(b)
-          .compareTo(DateFormat.yMMMMd('fr_FR').parse(a)));
-
+    // Une fois les autres données chargées, on utilise le StreamBuilder pour les rapports
     return Scaffold(
       appBar: AppBar(
         title: Row(
@@ -184,19 +191,51 @@ class _ListeRapportsScreenState extends State<ListeRapportsScreen>
           ],
         ),
       ),
-      body: _isLoading
-          ? Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
-              padding: const EdgeInsets.all(12.0),
-              child: Card(
-                color: AppColors.cardColor.darken(15),
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child:
-                      _buildColumnListe(sortedDates, context, groupedRapports),
-                ),
+      body: StreamBuilder<QuerySnapshot>(
+        stream: _rapportsStream,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (snapshot.hasError) {
+            return Center(child: Text("Erreur : ${snapshot.error}"));
+          }
+
+          // Convertir les documents en objets Rapport.
+          List<Rapport> rapports = snapshot.data!.docs
+              .map((doc) => Rapport.fromFirestore(
+                  doc as DocumentSnapshot<Map<String, dynamic>>))
+              .toList();
+
+          // Regrouper les rapports par date
+          Map<String, List<Rapport>> groupedRapports = {};
+          for (var rapport in rapports) {
+            String formattedDate =
+                DateFormat.yMMMMd('fr_FR').format(rapport.date!);
+            if (!groupedRapports.containsKey(formattedDate)) {
+              groupedRapports[formattedDate] = [];
+            }
+            groupedRapports[formattedDate]!.add(rapport);
+          }
+
+          // Trier les dates en ordre décroissant
+          List<String> sortedDates = groupedRapports.keys.toList()
+            ..sort((a, b) => DateFormat.yMMMMd('fr_FR')
+                .parse(b)
+                .compareTo(DateFormat.yMMMMd('fr_FR').parse(a)));
+
+          return SingleChildScrollView(
+            padding: const EdgeInsets.all(12.0),
+            child: Card(
+              color: AppColors.cardColor.darken(15),
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: _buildColumnListe(sortedDates, context, groupedRapports),
               ),
             ),
+          );
+        },
+      ),
       floatingActionButton: FloatingActionButton(
         tooltip: 'Nouveau rapport',
         onPressed: () {
@@ -286,10 +325,6 @@ class _ListeRapportsScreenState extends State<ListeRapportsScreen>
     }
 
     return agents;
-  }
-
-  Future<void> _fetchRapports() async {
-    _listeRapports = await _dbService.getRapports();
   }
 
   Future<void> _fetchAgents() async {
