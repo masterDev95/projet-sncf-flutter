@@ -272,6 +272,7 @@ class _ListeRapportsScreenState extends State<ListeRapportsScreen>
                 clipBehavior: Clip.antiAlias,
                 margin: const EdgeInsets.symmetric(vertical: 6.0),
                 child: ExpansionTile(
+                  key: PageStorageKey(date),
                   title: Text(
                     date, // 📅 Date comme titre principal
                     style: Theme.of(context).textTheme.titleMedium,
