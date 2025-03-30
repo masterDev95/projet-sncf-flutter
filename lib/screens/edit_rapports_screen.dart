@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:projet_sncf/container/page_indicator.dart';
 import 'package:projet_sncf/enums/cab.dart';
@@ -1087,9 +1088,14 @@ class _EditRapportScreenState extends State<EditRapportScreen>
           labelText: 'Nombre',
         ),
         keyboardType: TextInputType.number,
+        inputFormatters: [
+          FilteringTextInputFormatter.digitsOnly,
+        ],
         onChanged: (value) {
           setState(() {
-            nombrePiecesDeCinqCentimes = int.tryParse(value) ?? 0;
+            var parse = int.tryParse(value) ?? 0;
+            var clampedValue = parse.clamp(0, 81);
+            nombrePiecesDeCinqCentimes = clampedValue;
           });
         },
       ),
