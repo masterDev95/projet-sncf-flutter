@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:projet_sncf/services/database_service.dart';
 
 class AdminHomeScreen extends StatefulWidget {
   const AdminHomeScreen({super.key});
@@ -8,6 +9,20 @@ class AdminHomeScreen extends StatefulWidget {
 }
 
 class _AdminHomeScreenState extends State<AdminHomeScreen> {
+  final Map<Collection, int> _counts = {
+    Collection.agents: 0,
+    Collection.gares: 0,
+    Collection.rapports: 0,
+  };
+
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _getCounts();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -36,10 +51,10 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: const EdgeInsets.only(left: 18.0, bottom: 16.0),
+            padding: const EdgeInsets.only(left: 18.0, bottom: 40.0),
             child: Text(
               "Base de données",
-              style: Theme.of(context).textTheme.titleMedium,
+              style: Theme.of(context).textTheme.titleLarge,
             ),
           ),
           _collectionCards(),
@@ -48,70 +63,83 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
     );
   }
 
-  _collectionCards() {
+  Widget _collectionCards() {
     return SizedBox(
       width: double.infinity,
-      child: Wrap(
-        alignment: WrapAlignment.center,
-        spacing: 4,
-        runSpacing: 4,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          _buildCard("Agents", Icons.person, () {}),
-          _buildCard("Gares", Icons.train, () {}),
-          _buildCard("Rapports", Icons.article, () {}),
-          // add more cards as needed
+          _buildCard(Collection.agents, Icons.person, () {}),
+          _buildCard(Collection.gares, Icons.train, () {}),
+          _buildCard(Collection.rapports, Icons.article, () {}),
         ],
       ),
     );
   }
 
-  Widget _buildCard(String s, IconData iconData, Null Function() action) {
+  Widget _buildCard(Collection c, IconData iconData, Null Function() action) {
     return SizedBox(
-      width: 170,
+      width: 250,
       height: 100,
       child: Card(
+        clipBehavior: Clip.antiAlias,
         child: InkWell(
           onTap: action,
-          child: Padding(
-            padding: const EdgeInsets.only(top: 20.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                Flexible(
-                  child: Column(
-                    children: [
-                      Icon(
-                        iconData,
-                      ),
-                    ],
-                  ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              Expanded(
+                flex: 8,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      iconData,
+                      size: 40,
+                    ),
+                  ],
                 ),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        flex: 3,
-                        child: Text(
-                          "666",
-                          style: Theme.of(context).textTheme.titleLarge,
-                        ),
-                      ),
-                      Expanded(
-                        flex: 5,
-                        child: Text(
-                          s,
-                          style: Theme.of(context).textTheme.labelLarge,
-                        ),
-                      ),
-                    ],
-                  ),
+              ),
+              Expanded(
+                flex: 12,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    _getCountWidget(c),
+                    Text(
+                      c.name,
+                      style: Theme.of(context).textTheme.labelLarge,
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
     );
+  }
+
+  Future<void> _getCounts() async {
+    for (var c in _counts.keys) {
+      final count = await DatabaseService().getCountByCollection(c);
+      _counts[c] = count;
+    }
+
+    setState(() {
+      _isLoading = false;
+    });
+  }
+
+  Widget _getCountWidget(Collection c) {
+    if (_isLoading) {
+      return const CircularProgressIndicator();
+    } else {
+      return Text(
+        _counts[c].toString(),
+        style: Theme.of(context).textTheme.headlineLarge,
+      );
+    }
   }
 }

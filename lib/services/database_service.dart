@@ -73,4 +73,9 @@ class DatabaseService {
     }
     return rapport.id!;
   }
+
+  Future<int> getCountByCollection(Collection collection) async {
+    final snapshot = await _getCollection(collection);
+    return snapshot.docs.length;
+  }
 }
