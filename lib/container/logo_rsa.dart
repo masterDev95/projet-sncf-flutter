@@ -14,11 +14,11 @@ class LogoRSA extends StatelessWidget {
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(6.0),
-          color: AppColors.onPrimary.setAlphaPercent(75),
+          color: AppColors.onPrimary.setAlphaPercent(60),
         ),
         child: Padding(
           padding: const EdgeInsets.symmetric(
-            horizontal: 10.0,
+            horizontal: 8.0,
             vertical: 5.0,
           ),
           child: Image.asset(
