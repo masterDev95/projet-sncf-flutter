@@ -21,6 +21,8 @@ class AppColors {
   static final Color notReallyDark = Color(0xFF1F1F1F);
   static final Color notReallyDark2 = Color(0xFF2F2F2F);
 
+  static final Color notReallyLight = Color(0xFFBFBFBF);
+
   // Define the color of the cards
   static final Color cardColor = secondaryColorButDarker;
 

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
+import 'package:projet_sncf/container/logo_rsa.dart';
 import 'package:projet_sncf/container/page_indicator.dart';
 import 'package:projet_sncf/enums/cab.dart';
 import 'package:projet_sncf/enums/rechargement.dart';
@@ -698,13 +699,7 @@ class _EditRapportScreenState extends State<EditRapportScreen>
           appBar: AppBar(
             title: Row(
               children: [
-                Padding(
-                  padding: const EdgeInsets.only(right: 20.0, left: 8.0),
-                  child: Image.asset(
-                    "assets/images/logo.png",
-                    height: 36,
-                  ),
-                ),
+                LogoRSA(),
                 Text(_displayTitreRapport()),
               ],
             ),

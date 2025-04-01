@@ -11,4 +11,15 @@ extension ColorExtension on Color {
       (blue * f).round(),
     );
   }
+
+  Color setAlphaPercent(double percent) {
+    assert(0 <= percent && percent <= 100);
+    final f = percent / 100;
+    return Color.fromARGB(
+      (alpha * f).round(),
+      red,
+      green,
+      blue,
+    );
+  }
 }

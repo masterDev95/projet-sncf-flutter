@@ -27,7 +27,10 @@ Future<void> main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  await requestPermissions();
+  if (!kIsWeb) {
+    await requestPermissions();
+  }
+
   packageInfo = await PackageInfo.fromPlatform();
   appVersionOnFirebase = await getAppVersionFromFirebase();
 

@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:projet_sncf/container/download_progress_dialog.dart';
+import 'package:projet_sncf/container/logo_rsa.dart';
 import 'package:projet_sncf/extensions/color_extension.dart';
 import 'package:projet_sncf/main.dart';
 import 'package:projet_sncf/models/agent.dart';
@@ -180,13 +181,7 @@ class _ListeRapportsScreenState extends State<ListeRapportsScreen>
       appBar: AppBar(
         title: Row(
           children: [
-            Padding(
-              padding: const EdgeInsets.only(right: 20.0, left: 8.0),
-              child: Image.asset(
-                "assets/images/logo.png",
-                height: 36,
-              ),
-            ),
+            LogoRSA(),
             Text(widget.title),
           ],
         ),
