@@ -673,7 +673,7 @@ class _EditRapportScreenState extends State<EditRapportScreen>
       firstDate: DateTime(2000),
       lastDate: DateTime.now(),
     );
-    if (pickedDate != null && pickedDate != _rapport.date) {
+    if (pickedDate != _rapport.date) {
       setState(() {
         _rapport.date = pickedDate;
       });

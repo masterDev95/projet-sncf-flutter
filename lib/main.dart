@@ -110,7 +110,7 @@ class MyApp extends StatelessWidget {
           secondary: AppColors.secondary,
           onSecondary: AppColors.onSecondary,
         ),
-        cardTheme: CardTheme(
+        cardTheme: CardThemeData(
           color: AppColors.primary,
         ),
       ),
@@ -123,7 +123,7 @@ class MyApp extends StatelessWidget {
           secondary: AppColors.secondary,
           onSecondary: AppColors.onSecondary,
         ),
-        cardTheme: CardTheme(
+        cardTheme: CardThemeData(
           color: AppColors.cardColor,
         ),
         listTileTheme: const ListTileThemeData(

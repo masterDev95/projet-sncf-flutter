@@ -4,11 +4,16 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:projet_sncf/container/download_progress_dialog.dart';
 import 'package:projet_sncf/container/logo_rsa.dart';
+import 'package:projet_sncf/enums/type_service.dart';
 import 'package:projet_sncf/extensions/color_extension.dart';
+import 'package:projet_sncf/extensions/string_extension.dart';
 import 'package:projet_sncf/main.dart';
 import 'package:projet_sncf/models/agent.dart';
 import 'package:projet_sncf/models/gare.dart';
+import 'package:projet_sncf/models/gare_section_data.dart';
 import 'package:projet_sncf/models/rapport.dart';
+import 'package:projet_sncf/pdf/pdf_generator.dart';
+import 'package:projet_sncf/pdf/pdf_helper.dart';
 import 'package:projet_sncf/screens/edit_rapports_screen.dart';
 import 'package:projet_sncf/services/database_service.dart';
 import 'package:projet_sncf/utils/app_colors.dart';
@@ -267,6 +272,16 @@ class _ListeRapportsScreenState extends State<ListeRapportsScreen>
                 clipBehavior: Clip.antiAlias,
                 margin: const EdgeInsets.symmetric(vertical: 6.0),
                 child: ExpansionTile(
+                  trailing: IconButton(
+                    icon: const Icon(Icons.download),
+                    onPressed: () {
+                      showPdfDialog(
+                        context,
+                        listRapports: groupedRapports[date]!,
+                        date: date,
+                      );
+                    },
+                  ),
                   key: PageStorageKey(date),
                   title: Text(
                     date, // 📅 Date comme titre principal
@@ -335,5 +350,112 @@ class _ListeRapportsScreenState extends State<ListeRapportsScreen>
     if (rapport.gareId.isEmpty) return '';
     var gare = _listeGares.firstWhere((g) => g.id == rapport.gareId);
     return gare.nom;
+  }
+
+  void showPdfDialog(BuildContext context,
+      {required List<Rapport> listRapports, required String date}) {
+    TypeService typeService = TypeService.matinee;
+
+    List<Rapport> filteredRapports = listRapports
+        .where((rapport) => rapport.typeService == typeService)
+        .toList();
+
+    const WidgetStateProperty<Icon> thumbIcon =
+        WidgetStateProperty<Icon>.fromMap({
+      WidgetState.selected: Icon(
+        Icons.sunny,
+        color: Color(0xFFedda39),
+      ),
+      WidgetState.any: Icon(
+        Icons.nights_stay,
+        color: Color(0xFFfaf5cf),
+      ),
+    });
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Préparation du PDF'),
+          content: StatefulBuilder(
+            builder: (context, setState) => Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text('Veillez choisir la période des rapports'),
+                SizedBox(height: 10),
+                SwitchListTile(
+                  activeColor: Color(0xFF45a8ef),
+                  inactiveThumbColor: Color(0xFF103453),
+                  thumbIcon: thumbIcon,
+                  title: Text(typeService == TypeService.matinee
+                      ? 'Matinée'
+                      : 'Soirée'),
+                  value: typeService == TypeService.matinee,
+                  onChanged: (value) {
+                    setState(() {
+                      typeService =
+                          value ? TypeService.matinee : TypeService.soiree;
+                      filteredRapports = listRapports
+                          .where(
+                              (rapport) => rapport.typeService == typeService)
+                          .toList();
+                    });
+                  },
+                ),
+                if (filteredRapports.isEmpty)
+                  const Text(
+                    'Aucun rapport trouvé pour cette période',
+                    style: TextStyle(color: Colors.red),
+                  ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Annuler'),
+            ),
+            TextButton(
+              onPressed: () async {
+                await downloadRapportPdf(filteredRapports, date, typeService);
+                if (context.mounted) {
+                  Navigator.of(context).pop();
+                }
+              },
+              child: const Text('Télécharger'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  downloadRapportPdf(
+      List<Rapport> listRapports, String date, TypeService typeService) async {
+    final helper = PdfHelper(date, typeService);
+    await helper.init();
+
+    for (var i = 0; i < listRapports.length; i++) {
+      final rapport = listRapports[i];
+      helper.addSection(
+        GareSectionData(
+          gare: _displayGare(rapport),
+          personnes: _displayAgents(rapport),
+          sam: rapport.samChecked,
+          agite: rapport.agiteChecked,
+          cab: rapport.cab.name.splitCamelCase().capitalize(),
+          artList: rapport.arts,
+        ),
+      );
+
+      if (i < listRapports.length - 1) {
+        helper.addPageBreak();
+      }
+    }
+
+    final pdf = helper.build();
+    generatePdf(pdf);
   }
 }
