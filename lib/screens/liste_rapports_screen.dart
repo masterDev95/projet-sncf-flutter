@@ -375,10 +375,10 @@ class _ListeRapportsScreenState extends State<ListeRapportsScreen>
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Préparation du PDF'),
-          content: StatefulBuilder(
-            builder: (context, setState) => Column(
+        return StatefulBuilder(
+          builder: (context, setState) => AlertDialog(
+            title: const Text('Préparation du PDF'),
+            content: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text('Veillez choisir la période des rapports'),
@@ -409,24 +409,27 @@ class _ListeRapportsScreenState extends State<ListeRapportsScreen>
                   ),
               ],
             ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('Annuler'),
-            ),
-            TextButton(
-              onPressed: () async {
-                await downloadRapportPdf(filteredRapports, date, typeService);
-                if (context.mounted) {
+            actions: [
+              TextButton(
+                onPressed: () {
                   Navigator.of(context).pop();
-                }
-              },
-              child: const Text('Télécharger'),
-            ),
-          ],
+                },
+                child: const Text('Annuler'),
+              ),
+              TextButton(
+                onPressed: filteredRapports.isEmpty
+                    ? null
+                    : () async {
+                        await downloadRapportPdf(
+                            filteredRapports, date, typeService);
+                        if (context.mounted) {
+                          Navigator.of(context).pop();
+                        }
+                      },
+                child: const Text('Télécharger'),
+              ),
+            ],
+          ),
         );
       },
     );
