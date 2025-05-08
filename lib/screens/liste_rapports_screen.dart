@@ -449,6 +449,8 @@ class _ListeRapportsScreenState extends State<ListeRapportsScreen>
           sam: rapport.samChecked,
           agite: rapport.agiteChecked,
           cab: rapport.cab.name.splitCamelCase().capitalize(),
+          commentaireVerif: rapport.commentaireVerif,
+          commentaireFinal: rapport.commentaireFinal,
           artList: rapport.arts,
         ),
       );

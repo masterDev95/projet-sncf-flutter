@@ -164,12 +164,20 @@ class PdfHelper {
                     _buildBadge('CAB', label: data.cab),
                   ],
                 ),
+
                 pw.SizedBox(height: 20),
 
-                pw.Text(
-                  'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
-                  style: pw.TextStyle(color: PdfColors.white, fontSize: 12),
-                  textAlign: pw.TextAlign.justify,
+                pw.Row(
+                  children: [
+                    pw.Expanded(
+                      child: pw.Text(
+                        data.commentaireVerif,
+                        style:
+                            pw.TextStyle(color: PdfColors.white, fontSize: 12),
+                        textAlign: pw.TextAlign.justify,
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -220,6 +228,13 @@ class PdfHelper {
           headerDecoration: pw.BoxDecoration(color: PdfColors.grey300),
           border: pw.TableBorder.all(width: 0.5, color: PdfColors.grey600),
         ),
+        pw.SizedBox(height: 16),
+        if (data.commentaireFinal.isNotEmpty)
+          pw.Text(
+            data.commentaireFinal,
+            style: pw.TextStyle(color: PdfColors.black, fontSize: 12),
+            textAlign: pw.TextAlign.justify,
+          ),
       ],
     );
   }
