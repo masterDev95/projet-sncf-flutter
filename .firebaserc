@@ -1,0 +1,15 @@
+{
+  "projects": {
+    "default": "sncf-prod-91111"
+  },
+  "targets": {
+    "sncf-prod-91111": {
+      "hosting": {
+        "app": [
+          "gestion-sncf-voyageur"
+        ]
+      }
+    }
+  },
+  "etags": {}
+}

@@ -1,1 +1,33 @@
-{"flutter":{"platforms":{"android":{"default":{"projectId":"sncf-prod-91111","appId":"1:453074206616:android:018cc9c105fc938c14b5ed","fileOutput":"android/app/google-services.json"}},"dart":{"lib/firebase_options.dart":{"projectId":"sncf-prod-91111","configurations":{"android":"1:453074206616:android:018cc9c105fc938c14b5ed"}}}}}}
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "sncf-prod-91111",
+          "appId": "1:453074206616:android:018cc9c105fc938c14b5ed",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "sncf-prod-91111",
+          "configurations": {
+            "android": "1:453074206616:android:018cc9c105fc938c14b5ed"
+          }
+        }
+      }
+    }
+  },
+  "hosting": {
+    "target": "app",
+    "source": ".",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "frameworksBackend": {
+      "region": "europe-west1"
+    }
+  }
+}
